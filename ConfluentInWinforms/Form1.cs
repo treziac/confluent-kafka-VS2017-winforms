@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Confluent.Kafka;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,21 @@ namespace ConfluentInWinforms
         public Form1()
         {
             InitializeComponent();
+
+            librdkafkaVersion.Text = "librdkafka version " + Library.VersionString;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var config = new Dictionary<string, object> { { "bootstrap.servers", textBox1.Text } };
+            using (var producer = new Producer(config))
+            {
+                var meta = producer.GetMetadata(true, null);
+                meta.Topics.ForEach(topic =>
+                {
+                    listView1.Items.Add(topic.Topic + " (" + topic.Partitions.Count + " partitions)");
+                });
+            }
         }
     }
 }
